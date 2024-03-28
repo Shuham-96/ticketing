@@ -28,8 +28,8 @@ class StoreTicketRequest extends FormRequest
             'html'          => 'nullable',
             'status_id'     => 'required',
             'priority_id'   => 'required',
-            'user_id'       => 'required',
-            'agent_id'      => 'required',
+            'user_id'       => 'nullable',
+            'agent_id'      => 'nullable',
             'category_id'   => 'required',
             'completed_at'  => 'nullable'
         ];

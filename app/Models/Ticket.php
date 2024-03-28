@@ -28,7 +28,8 @@ class Ticket extends Model
         'priority_id',
         'category_id',
         'completed_at',
-        'ticket_number'
+        'ticket_number',
+        'cc'
     ];
     /**
      * List of completed tickets.

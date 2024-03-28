@@ -11,6 +11,7 @@ use App\Http\Resources\TicketResource;
 use App\Models\Category;
 use App\Models\Priority;
 use App\Models\Status;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 class TicketController extends Controller
@@ -52,6 +53,7 @@ class TicketController extends Controller
      */
     public function store(StoreTicketRequest $request)
     {
+        $admin_user = User::where('ticket_admin', 1)->first();
         $details =[
             'subject' => $request->subject,
             'content' => $request->content,
@@ -59,11 +61,12 @@ class TicketController extends Controller
             'status_id' => $request->status_id,
             'priority_id' => $request->priority_id,
             'category_id' => $request->category_id,
-            'agent_id' => $request->agent_id,
+            'agent_id' => $admin_user->id,
             'app_agent_id' => $request->app_agent_id,
             'agency_id' => $request->agency_id,
             'app_name' => $request->app_name,
-            'user_id' => $request->user_id,
+            'ticket_number' => getTicketNumber($request->app_name, $request->app_agent_id),
+            'user_id' => $admin_user->id,
         ];
         DB::beginTransaction();
         try{
