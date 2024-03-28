@@ -6,6 +6,7 @@ use App\Interfaces\TicketRepositoryInterface;
 use App\Models\Category;
 use App\Models\Priority;
 use App\Models\Status;
+use Carbon\Carbon;
 
 class TicketRepository implements TicketRepositoryInterface
 {
@@ -38,7 +39,13 @@ class TicketRepository implements TicketRepositoryInterface
    public function priorities(){
       return Priority::all();
    }
-   
+   public function complete($id){
+      return Ticket::whereId($id)->update(['completed_at' => Carbon::now()]);
+   }
+   public function reopen($id){
+      return Ticket::whereId($id)->update(['completed_at' => null]);
+      
+   }
    public function categories(){
       return Category::all();
    }

@@ -194,6 +194,7 @@ class TicketsController extends Controller
     {
         $this->validate($request, [
             'subject' => 'required|min:3',
+            // 'cc' => 'required|min:3',
             'content' => 'required|min:6',
             'priority_id' => 'required|exists:ticket_priorities,id',
             'category_id' => 'required|exists:ticket_categories,id',
@@ -204,6 +205,7 @@ class TicketsController extends Controller
 
 
         $ticket->subject = $request->subject;
+        // $ticket->cc =      $request->cc;
         $ticket->setPurifiedContent($request->get('content'));
         $ticket->priority_id = $request->priority_id;
         $ticket->category_id = $request->category_id;
@@ -260,6 +262,7 @@ class TicketsController extends Controller
     {
         $this->validate($request, [
             'subject' => 'required|min:3',
+            // 'cc' => 'required|min:3',
             'content' => 'required|min:6',
             'priority_id' => 'required|exists:ticket_priorities,id',
             'category_id' => 'required|exists:ticket_categories,id',
@@ -270,6 +273,7 @@ class TicketsController extends Controller
         $ticket = $this->tickets->findOrFail($id);
 
         $ticket->subject = $request->subject;
+        // $ticket->cc = $request->cc;
 
         $ticket->setPurifiedContent($request->get('content'));
 
