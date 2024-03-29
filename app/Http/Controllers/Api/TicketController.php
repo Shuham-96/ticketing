@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateTicketRequest;
 use App\Interfaces\TicketRepositoryInterface;
 use App\Classes\ApiResponseClass;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\CommentsController;
 use App\Http\Resources\TicketResource;
 use App\Models\Category;
 use App\Models\Priority;
@@ -15,15 +14,9 @@ use App\Models\Status;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use App\Models;
-use Illuminate\Support\Facades\Auth;
-
 class TicketController extends Controller
 {
-    protected $tickets;
-
+    
     private TicketRepositoryInterface $ticketRepositoryInterface;
     
     public function __construct(TicketRepositoryInterface $ticketRepositoryInterface)
@@ -145,61 +138,4 @@ class TicketController extends Controller
                 'statuses' => $statuses->pluck('name', 'id')
             ], '', 200);
     }
-
-   /**
-     * Mark ticket as complete.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
-    public function complete($id)
-    {
-       
-        $data = $this->ticketRepositoryInterface->complete($id);
-        return ApiResponseClass::sendResponse($data,'Ticket Complete Successful',200);
-    }
-
-    /**
-     * Reopen ticket from complete status.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
-    public function reopen($id)
-    {
-        $data = $this->ticketRepositoryInterface->reopen($id);
-        return ApiResponseClass::sendResponse($data,'Ticket Reopen Successful',201);  
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function storecomments(Request $request)
-    {
-        $this->validate($request, [
-            'ticket_id'   => 'required|exists:ticket,id',
-            'content'     => 'required|min:6',
-        ]);
-
-        $comment = new Models\Comment();
-
-        $comment->setPurifiedContent($request->get('content'));
-
-        $comment->ticket_id = $request->get('ticket_id');
-        $comment->user_id = Auth::user()->id;
-        $comment->save();
-
-        $ticket = Models\Ticket::find($comment->ticket_id);
-        $ticket->updated_at = $comment->created_at;
-        $ticket->save();
-
-        return back()->with('status', trans('lang.comment-has-been-added-ok'));
-    }
-
 }

@@ -11,8 +11,6 @@ interface TicketRepositoryInterface
     public function store(array $data);
     public function update(array $data,$id);
     public function delete($id);
-    public function complete($id);
-    public function reopen($id);
     public function priorities();
     public function categories();
     public function statuses();
