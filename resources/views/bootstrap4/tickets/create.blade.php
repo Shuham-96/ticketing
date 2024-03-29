@@ -83,6 +83,13 @@
                     <input type="hidden" name="agent_id" value="auto">
                 </div>
                 <div class="col-lg-6">
+                    <label for="cc" class="col-form-label">{{ trans('lang.cc') }}</label>
+                    <input type="text" id="cc" name="cc" class="form-control" placeholder="Enter CC email" required autofocus>
+                    <small class="form-text text-muted">Enter email addresses separated by commas for CC.</small>
+                </div>
+                
+
+                <div class="col-lg-6">
                     <button type="submit" class="btn btn-primary float-right mt-4">{{ trans('lang.btn-submit') }}</button>
                 </div>
             </div>

@@ -43,6 +43,7 @@ class TicketResource extends JsonResource
                     'name' => $this->category->name
                 ];
             }),
+            'comments' => $this->comments()->exists() ? $this->comments : [],
             'created_at' => Carbon::parse($this->created_at)->toDateTimeString(),
             'updated_at' => Carbon::parse($this->updated_at)->toDateTimeString(),
             'completed_at' => $this->completed_at ? Carbon::parse($this->completed_at)->toDateTimeString() : null

@@ -190,36 +190,41 @@ class TicketsController extends Controller
      */
 
     
-    public function store(Request $request)
-    {
-        $this->validate($request, [
-            'subject' => 'required|min:3',
-            'content' => 'required|min:6',
-            'priority_id' => 'required|exists:ticket_priorities,id',
-            'category_id' => 'required|exists:ticket_categories,id',
-        ]);
-
-        $ticket = new Ticket();
-        $ticket->ticket_number = getTicketNumber($request->app_name, $request->app_agent_id);
-
-
-        $ticket->subject = $request->subject;
-        $ticket->setPurifiedContent($request->get('content'));
-        $ticket->priority_id = $request->priority_id;
-        $ticket->category_id = $request->category_id;
-        $ticket->status_id = Status::first()->id;
-        $ticket->user_id = auth()->user()->id;
-        $ticket->autoSelectAgent();
-        $ticket->app_agent_id = $request->app_agent_id;
-        $ticket->app_name = $request->app_name;
-        $ticket->agency_id = $request->agency_id;
-        $ticket->save();
-
-        session()->flash('status', trans('lang.the-ticket-has-been-created'));
-
-        return redirect()->route('tickets.index');
-    }
-
+     public function store(Request $request)
+     {
+         $this->validate($request, [
+             'subject' => 'required|min:3',
+             'content' => 'required|min:6',
+             'cc' => 'required', // Ensure 'cc' is an array
+            //  'cc.*' => 'email', // Validate each email in the 'cc' array
+             'priority_id' => 'required|exists:ticket_priorities,id',
+             'category_id' => 'required|exists:ticket_categories,id',
+         ]);
+     
+         $ticket = new Ticket();
+         $ticket->ticket_number = getTicketNumber($request->app_name, $request->app_agent_id);
+     
+         $ticket->subject = $request->subject;
+         $ticket->setPurifiedContent($request->get('content'));
+         $ticket->priority_id = $request->priority_id;
+         $ticket->category_id = $request->category_id;
+         $ticket->status_id = Status::first()->id;
+         $ticket->user_id = auth()->user()->id;
+         $ticket->autoSelectAgent();
+         $ticket->app_agent_id = $request->app_agent_id;
+         $ticket->app_name = $request->app_name;
+         $ticket->agency_id = $request->agency_id;
+     
+         // If 'cc' is an array, serialize it to store in the database
+         $ticket->cc = json_encode($request->cc);
+     
+         $ticket->save();
+     
+         session()->flash('status', trans('lang.the-ticket-has-been-created'));
+     
+         return redirect()->route('tickets.index');
+     }
+     
     /**
      * Display the specified resource.
      *
@@ -260,38 +265,41 @@ class TicketsController extends Controller
     {
         $this->validate($request, [
             'subject' => 'required|min:3',
+            'cc' => 'required', // Ensure 'cc' is an array
+            // 'cc.*' => 'email', // Validate each email in the 'cc' array
             'content' => 'required|min:6',
             'priority_id' => 'required|exists:ticket_priorities,id',
             'category_id' => 'required|exists:ticket_categories,id',
             'status_id' => 'required|exists:ticket_statuses,id',
             'agent_id' => 'required',
         ]);
-
+    
         $ticket = $this->tickets->findOrFail($id);
-
+    
         $ticket->subject = $request->subject;
-
+        $ticket->cc = $request->cc; // Assign the 'cc' array directly
         $ticket->setPurifiedContent($request->get('content'));
-
         $ticket->status_id = $request->status_id;
         $ticket->category_id = $request->category_id;
         $ticket->priority_id = $request->priority_id;
         $ticket->app_agent_id = $request->app_agent_id;
         $ticket->app_name = $request->app_name;
         $ticket->agency_id = $request->agency_id;
-
+    
         if ($request->input('agent_id') == 'auto') {
             $ticket->autoSelectAgent();
         } else {
             $ticket->agent_id = $request->input('agent_id');
         }
-
+    
         $ticket->save();
-
+    
         session()->flash('status', trans('lang.the-ticket-has-been-modified'));
-
+    
         return redirect()->route('tickets.show', $id);
     }
+    
+
 
     /**
      * Remove the specified resource from storage.

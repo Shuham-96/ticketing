@@ -50,6 +50,13 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-lg-6">
+                        <label for="cc" class="col-form-label">{{ trans('lang.cc') }}</label>
+                        <input type="text" id="cc" name="cc" class="form-control" placeholder="Enter CC email" autofocus value="{{ old('cc', $ticket->cc) }}">
+                        <small class="form-text text-muted">Enter email addresses separated by commas for CC.</small>
+                    </div>
+                    
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ trans('lang.btn-close') }}</button>

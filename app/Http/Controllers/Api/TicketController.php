@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateTicketRequest;
 use App\Interfaces\TicketRepositoryInterface;
 use App\Classes\ApiResponseClass;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CommentsController;
 use App\Http\Resources\TicketResource;
 use App\Models\Category;
 use App\Models\Priority;
@@ -14,9 +15,17 @@ use App\Models\Status;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use App\Models;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Comment;
+use App\Models\Ticket;
+
+
 class TicketController extends Controller
 {
-    
+    protected $tickets;
+
     private TicketRepositoryInterface $ticketRepositoryInterface;
     
     public function __construct(TicketRepositoryInterface $ticketRepositoryInterface)
@@ -138,4 +147,55 @@ class TicketController extends Controller
                 'statuses' => $statuses->pluck('name', 'id')
             ], '', 200);
     }
+
+   /**
+     * Mark ticket as complete.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
+    public function complete($id)
+    {
+       
+        $data = $this->ticketRepositoryInterface->complete($id);
+        return ApiResponseClass::sendResponse($data,'Ticket Complete Successful',200);
+    }
+
+    /**
+     * Reopen ticket from complete status.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
+    public function reopen($id)
+    {
+        $data = $this->ticketRepositoryInterface->reopen($id);
+        return ApiResponseClass::sendResponse($data,'Ticket Reopen Successful',201);  
+    }
+
+    public function storecomments(Request $request, $ticket_id)
+{
+    $this->validate($request, [
+        'content'     => 'required|min:6',
+    ]);
+
+    // Optionally, you can check if the ticket exists
+    $ticket = Ticket::findOrFail($ticket_id);
+
+    $admin_user = User::where('ticket_admin', 1)->first();
+    $comment = new Comment();
+    $comment->setPurifiedContent($request->input('content'));
+    $comment->ticket_id = $ticket_id;
+    $comment->user_id = $admin_user->id;
+    $comment->save();
+
+    // Update the ticket's updated_at timestamp
+    $ticket->touch();
+
+    return ApiResponseClass::sendResponse($ticket, 'Comment added successfully', 201);
+}
+
+
 }

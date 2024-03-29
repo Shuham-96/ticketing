@@ -2,6 +2,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\Api\CommentsController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -18,8 +19,15 @@ Route::prefix('tickets')->group(function () {
     Route::get('/{ticket}', [TicketController::class, 'show']);
     Route::put('/{ticket}', [TicketController::class, 'update']);
     Route::delete('/{ticket}', [TicketController::class, 'destroy']);
-
-    // Additional routes can be defined within the group
+    Route::post('/{ticket}/reopen', [TicketController::class, 'reopen']);
+    Route::post('/{ticket}/complete', [TicketController::class, 'complete']);
+    Route::post('/{tickets}/storecomments', [TicketController::class, 'storecomments']);
+        // Additional routes can be defined within the group
     Route::post('/{ticket}/close', [TicketController::class, 'close']);
     Route::post('/{ticket}/reopen', [TicketController::class, 'reopen']);
+    
+
+
+
+
 });
