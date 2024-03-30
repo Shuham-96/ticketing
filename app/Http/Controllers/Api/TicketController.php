@@ -63,6 +63,7 @@ class TicketController extends Controller
     public function store(StoreTicketRequest $request)
     {
         $admin_user = User::where('ticket_admin', 1)->first();
+        // dd($request->all());
         $details =[
             'subject' => $request->subject,
             'content' => $request->content,
@@ -74,6 +75,7 @@ class TicketController extends Controller
             'app_agent_id' => $request->app_agent_id,
             'agency_id' => $request->agency_id,
             'app_name' => $request->app_name,
+            'cc' => $request->cc,
             'ticket_number' => getTicketNumber($request->app_name, $request->app_agent_id),
             'user_id' => $admin_user->id,
         ];
@@ -175,16 +177,22 @@ class TicketController extends Controller
         return ApiResponseClass::sendResponse($data,'Ticket Reopen Successful',201);  
     }
 
-    public function storecomments(Request $request, $ticket_id)
+public function storecomments(Request $request, $ticket_id)
 {
     $this->validate($request, [
         'content'     => 'required|min:6',
     ]);
 
     // Optionally, you can check if the ticket exists
+    $ticket = Ticket::find($ticket_id);
+    if(!$ticket){
+        return ApiResponseClass::sendResponse('Ticket Not Found','Ticket not found',404);
+    }
     $ticket = Ticket::findOrFail($ticket_id);
 
     $admin_user = User::where('ticket_admin', 1)->first();
+    
+    // Create a new comment
     $comment = new Comment();
     $comment->setPurifiedContent($request->input('content'));
     $comment->ticket_id = $ticket_id;
@@ -194,7 +202,16 @@ class TicketController extends Controller
     // Update the ticket's updated_at timestamp
     $ticket->touch();
 
-    return ApiResponseClass::sendResponse($ticket, 'Comment added successfully', 201);
+    // Prepare the response data
+    $response = [
+        'id' => $comment->id,
+        'ticket_number' => $ticket->ticket_number, 
+        'content' => $comment->content,
+        'created_at' => $comment->created_at->toIso8601String(),
+        'updated_at' => $comment->updated_at->toIso8601String(),
+    ];
+
+    return ApiResponseClass::sendResponse($response, 'Comment added successfully', 201);
 }
 
 

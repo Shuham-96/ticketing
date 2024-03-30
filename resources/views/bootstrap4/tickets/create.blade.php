@@ -84,11 +84,19 @@
                 </div>
                 <div class="col-lg-6">
                     <label for="cc" class="col-form-label">{{ trans('lang.cc') }}</label>
-                    <input type="text" id="cc" name="cc" class="form-control" placeholder="Enter CC email" required autofocus>
-                    <small class="form-text text-muted">Enter email addresses separated by commas for CC.</small>
+                    <div id="cc-input-container">
+                        <div class="input-group mb-3">
+                            <input type="text" id="cc" name="cc[]" class="form-control" placeholder="Enter CC email">
+                            <div class="input-group-append">
+                                <button class="btn btn-success add-field d-block" type="button">Add</button>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">Enter email addresses separated by spaces for CC.</small>
                 </div>
                 
-
+                
                 <div class="col-lg-6">
                     <button type="submit" class="btn btn-primary float-right mt-4">{{ trans('lang.btn-submit') }}</button>
                 </div>
@@ -146,4 +154,58 @@
             });
         });
     </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const container = document.getElementById("cc-input-container");
+
+        // Function to add new input field
+        function addInputField() {
+            const newInput = document.createElement("div");
+            newInput.className = "input-group mb-3";
+            newInput.innerHTML = `
+                <input type="text" class="form-control" name="cc[]" placeholder="Enter CC email">
+                <div class="input-group-append">
+                    <button class="btn btn-danger delete-field" type="button">Delete</button>
+                </div>
+            `;
+            container.appendChild(newInput);
+            // Hide the Add button for all fields after the first one
+            const addButtons = container.querySelectorAll(".add-field");
+            addButtons.forEach(function(button) {
+                button.style.display = "none";
+            });
+        }
+
+        // Function to delete input field
+        function deleteInputField(inputGroup) {
+            container.removeChild(inputGroup);
+            // Show the Add button for the previous field when a field is deleted
+            const addButtons = container.querySelectorAll(".add-field");
+            addButtons.forEach(function(button) {
+                button.style.display = "inline-block";
+            });
+        }
+
+        // Event listener for add button
+        container.addEventListener("click", function(event) {
+            if (event.target.classList.contains("add-field")) {
+                addInputField();
+            }
+        });
+
+        // Event listener for delete button
+        container.addEventListener("click", function(event) {
+            if (event.target.classList.contains("delete-field")) {
+                const inputGroup = event.target.closest(".input-group");
+                deleteInputField(inputGroup);
+            }
+        });
+    });
+</script>
+
+
+
+
+    
+
 @endsection

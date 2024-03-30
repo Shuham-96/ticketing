@@ -14,7 +14,10 @@ class Ticket extends Model
 
     protected $table = 'ticket';
     protected $dates = ['completed_at'];
-    
+    protected $casts = [
+        'cc' => 'array',
+    ];
+
     protected $fillable = [
         'subject',
         'content',

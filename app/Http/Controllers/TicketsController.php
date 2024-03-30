@@ -192,18 +192,18 @@ class TicketsController extends Controller
     
      public function store(Request $request)
      {
-         $this->validate($request, [
+
+ //dd($request->all());
+       $this->validate($request, [
              'subject' => 'required|min:3',
              'content' => 'required|min:6',
-             'cc' => 'required', // Ensure 'cc' is an array
-            //  'cc.*' => 'email', // Validate each email in the 'cc' array
+             'cc' => 'nullable|array', // Ensure 'cc' is an array
              'priority_id' => 'required|exists:ticket_priorities,id',
              'category_id' => 'required|exists:ticket_categories,id',
          ]);
      
          $ticket = new Ticket();
          $ticket->ticket_number = getTicketNumber($request->app_name, $request->app_agent_id);
-     
          $ticket->subject = $request->subject;
          $ticket->setPurifiedContent($request->get('content'));
          $ticket->priority_id = $request->priority_id;
@@ -214,16 +214,17 @@ class TicketsController extends Controller
          $ticket->app_agent_id = $request->app_agent_id;
          $ticket->app_name = $request->app_name;
          $ticket->agency_id = $request->agency_id;
-     
-         // If 'cc' is an array, serialize it to store in the database
-         $ticket->cc = json_encode($request->cc);
+         $ticket->cc = $request->cc;
+         // Convert array of CC emails to string
+        //  $ccEmails = implode(', ', $request->cc);
+        //  $ticket->cc = $ccEmails;
      
          $ticket->save();
-     
          session()->flash('status', trans('lang.the-ticket-has-been-created'));
      
          return redirect()->route('tickets.index');
      }
+     
      
     /**
      * Display the specified resource.
@@ -265,7 +266,7 @@ class TicketsController extends Controller
     {
         $this->validate($request, [
             'subject' => 'required|min:3',
-            'cc' => 'required', // Ensure 'cc' is an array
+            'cc' => 'required|array', // Ensure 'cc' is an array
             // 'cc.*' => 'email', // Validate each email in the 'cc' array
             'content' => 'required|min:6',
             'priority_id' => 'required|exists:ticket_priorities,id',
