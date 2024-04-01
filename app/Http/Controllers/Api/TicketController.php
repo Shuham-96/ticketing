@@ -7,7 +7,7 @@ use App\Http\Requests\UpdateTicketRequest;
 use App\Interfaces\TicketRepositoryInterface;
 use App\Classes\ApiResponseClass;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\CommentsController;
+
 use App\Http\Resources\TicketResource;
 use App\Models\Category;
 use App\Models\Priority;
@@ -16,8 +16,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use App\Models;
-use Illuminate\Support\Facades\Auth;
+
 use App\Models\Comment;
 use App\Models\Ticket;
 
@@ -35,11 +34,27 @@ class TicketController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $data = $this->ticketRepositoryInterface->index();
-        return ApiResponseClass::sendResponse(TicketResource::collection($data),'',200);
+    public function index(Request $request)
+{
+    // Fetching request parameters
+    $agencyId = $request->input('agency_id');
+    $appAgentId = $request->input('app_agent_id');
+    $appName = $request->input('app_name');
+
+    // Fetch data based on conditions
+    $data = $this->ticketRepositoryInterface->index($agencyId, $appAgentId, $appName);
+
+    // Check if data is empty, if so, return error response
+    if ($data->isEmpty()) {
+        return ApiResponseClass::sendError('No data found based on provided conditions', [], 404);
     }
+
+    // Return the fetched data as a successful response
+    return ApiResponseClass::sendResponse(TicketResource::collection($data), '', 200);
+}
+
+
+
     /**
      * Display a listing of the resource.
      */

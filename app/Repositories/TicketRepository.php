@@ -10,9 +10,17 @@ use Carbon\Carbon;
 
 class TicketRepository implements TicketRepositoryInterface
 {
-   public function index(){
-      return Ticket::all();
-   }
+   public function index($agencyId, $appAgentId, $appName)
+    {
+        // Fetch data based on conditions
+        $data = Ticket::where('agency_id', $agencyId)
+                      ->where('app_agent_id', $appAgentId)
+                      ->where('app_name', $appName)
+                      ->get();
+
+        return $data;
+    }
+
    public function active(){
       return Ticket::active()->get();
    }
